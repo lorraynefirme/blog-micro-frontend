@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack --port 3002",
+    "dev": "next dev --turbopack --port 3101",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -11,7 +11,8 @@
   "dependencies": {
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.4.6"
+    "next": "15.4.6",
+     "@repo/ui": "file:../../packages/ui"
   },
   "devDependencies": {
     "typescript": "^5",
