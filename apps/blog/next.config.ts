@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@repo/ui"],
+  basePath: "/blog",
+  transpilePackages: ["@repo/ui", "@repo/tailwind-config"],
 };
 
 export default nextConfig;
