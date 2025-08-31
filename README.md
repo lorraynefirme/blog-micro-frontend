@@ -1,135 +1,125 @@
-# Turborepo starter
+## Blog Tech Micro-frontends
 
-This Turborepo starter is maintained by the Turborepo core team.
+```markdown
+# 🧩 Multi-Zone com Next.js (Micro-frontends)
 
-## Using this example
+Este monorepo implementa Multi-Zone no Next.js: um Shell (apps/web) que orquestra dois microfrontends independentes (Blog e Admin Panel) via middleware.
 
-Run the following command:
+---
 
-```sh
-npx create-turbo@latest
+## 📂 Estrutura
+
+apps/
+├─ web/ # Shell host
+├─ blog/ # Microfrontend Blog (basePath: /blog)
+└─ admin-panel/ # Microfrontend Admin (basePath: /admin-panel)
+packages/
+├─ ui/ # Design System compartilhado
+└─ tailwind-config/
 ```
 
-## What's inside?
+---
 
-This Turborepo includes the following packages/apps:
+## 🔀 Como funciona
 
-### Apps and Packages
+- Usuário acessa `https://shell.com/blog/...` ou `.../admin-panel/...`
+- O **middleware do shell** reescreve a request para o microfrontend correto (`BLOG_ORIGIN` ou `ADMIN_ORIGIN`)
+- O navegador mantém a URL no domínio do shell → **sem CORS e sem redirects**
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+---
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## ⚙️ Configuração
 
-### Utilities
+### Shell (`apps/web/middleware.ts`)
 
-This Turborepo has some additional tools already setup for you:
+```ts
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+const BLOG_ORIGIN = process.env.BLOG_ORIGIN || "http://localhost:3101";
+const ADMIN_ORIGIN = process.env.ADMIN_ORIGIN || "http://localhost:3102";
 
-### Build
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
 
-To build all apps and packages, run the following command:
+  if (pathname.startsWith("/blog")) {
+    const url = req.nextUrl.clone();
 
-```
-cd my-turborepo
+    url.href = `${BLOG_ORIGIN}${pathname}${req.nextUrl.search}`;
+    return NextResponse.rewrite(url);
+  }
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+  if (pathname.startsWith("/admin-panel")) {
+    const url = req.nextUrl.clone();
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+    url.href = `${ADMIN_ORIGIN}${pathname}${req.nextUrl.search}`;
+    return NextResponse.rewrite(url);
+  }
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+  return NextResponse.next();
+}
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+export const config = {
+  matcher: ["/blog/:path*", "/admin-panel/:path*"],
+};
 ```
 
-### Develop
+### Blog (`apps/blog/next.config.ts`)
 
-To develop all apps and packages, run the following command:
+```ts
+const nextConfig: NextConfig = {
+  basePath: "/blog",
+  transpilePackages: ["@repo/ui", "@repo/tailwind-config"],
+};
 
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+export default nextConfig;
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+### Admin (`apps/admin-panel/next.config.ts`)
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+```ts
+const nextConfig: NextConfig = {
+  basePath: "/admin-panel",
+  transpilePackages: ["@repo/ui", "@repo/tailwind-config"],
+};
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+export default nextConfig;
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+## ✅ Benefícios
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+- **Navegação transparente**  
+  O usuário acessa `/blog` e `/admin-panel` como se fossem parte de um único app, sem perceber que existem múltiplos projetos por trás.
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
+- **Deploys independentes**  
+  Cada microfrontend (blog e admin) pode ser publicado separadamente, sem precisar esperar o shell ou os outros apps — reduzindo tempo de entrega.
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
+- **Reuso de código e design system**  
+  Pacotes compartilhados (`ui`, `tailwind-config`) garantem consistência visual e aceleram o desenvolvimento entre times diferentes.
 
-## Useful Links
+- **Escalabilidade de equipes**  
+  Times podem trabalhar de forma isolada em cada microfrontend, com pipelines de CI/CD próprias, sem travar o fluxo dos outros.
 
-Learn more about the power of Turborepo:
+- **Performance otimizada**  
+  Como os assets são servidos no mesmo domínio do shell, o navegador reaproveita cache e mantém carregamento mais rápido.
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+---
+
+## 🌐 Deploy
+
+- Cada microfrontend é deployado separadamente (ex.: na Vercel):
+
+- blog → https://blog-micro-frontend-blog.vercel.app/blog
+
+- admin-panel → https://blog-micro-frontend-admin-panel.vercel.app/admin-panel
+
+- web (shell) → https://blog-micro-frontend-web.vercel.app/
+
+- O Shell orquestra todos via rewrites no middleware.ts.
+
+---
+
+## 📖 Referências
+
+- [Next.js Multi Zones](https://nextjs.org/docs/app/building-your-application/deploying/multi-zones)
+- [Middleware Rewrites](https://nextjs.org/docs/app/building-your-application/routing/middleware#rewrites)
