@@ -35,7 +35,7 @@ export default function RootLayout({
           <Header
             shellOrigin={SHELL_ORIGIN}
             blog={{ url: "/", hasPrefetch: true }}
-            admin={{ url: "admin-panel", hasPrefetch: false }}
+            admin={{ url: "/admin-panel", hasPrefetch: false }}
           />
           {children}
           <Footer />
