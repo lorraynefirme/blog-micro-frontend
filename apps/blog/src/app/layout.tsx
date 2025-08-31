@@ -1,4 +1,4 @@
-import { LayoutBlog, Header } from "@repo/ui/index";
+import { LayoutBlog, Header, Footer } from "@repo/ui/index";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -38,6 +38,7 @@ export default function RootLayout({
             admin={{ url: "admin-panel", hasPrefetch: false }}
           />
           {children}
+          <Footer />
         </LayoutBlog>
       </body>
     </html>
