@@ -2,10 +2,6 @@
 
 import { HomeCard } from "@repo/ui/index";
 
-const container = "mx-auto max-w-5xl px-4 sm:px-6 lg:px-8";
-const card =
-  "group rounded-2xl border border-zinc-200/70 bg-brand-300 backdrop-blur p-6 hover:shadow-xl transition-shadow";
-
 function ArrowIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -24,7 +20,7 @@ export default function ShellHome() {
   return (
     <main>
       <section className="py-14">
-        <div className={container}>
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
             Seja Bem-vindo(a) ao Blog Tech!
           </h1>

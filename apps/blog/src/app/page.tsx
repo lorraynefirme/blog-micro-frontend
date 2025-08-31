@@ -1,7 +1,7 @@
 "use client";
 
 import { PopularTagsCard, PostCard } from "@repo/ui/index";
-export default function Home() {
+export default function BlogHome() {
   const postMock = {
     id: "1",
     slug: "first-post",
@@ -9,7 +9,7 @@ export default function Home() {
     content: "Este é o conteúdo do meu primeiro post no blog.",
     author: "Lorrayne",
     tags: ["next", "react", "blog"],
-    createdAt: Date.now(),
+    createdAt: 1756068300,
   };
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
