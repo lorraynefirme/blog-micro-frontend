@@ -1,13 +1,11 @@
 ## Blog Tech Micro-frontends
 
 ```markdown
-# 🧩 Multi-Zone com Next.js (Micro-frontends)
+ 🧩 Multi-Zone com Next.js (Micro-frontends)
 
 Este monorepo implementa Multi-Zone no Next.js: um Shell (apps/web) que orquestra dois microfrontends independentes (Blog e Admin Panel) via middleware.
 
----
-
-## 📂 Estrutura
+ 📂 Estrutura
 
 apps/
 ├─ web/ # Shell host
